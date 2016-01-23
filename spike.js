@@ -1,0 +1,142 @@
+$( document ).ready(function() {
+                    loadChart();
+                    });
+
+function elapsedToSeconds(hhmmss) {
+    var parts = hhmmss.split(':');
+    var hh = parseInt(parts[0]);
+    var mm = parseInt(parts[1]);
+    var ss = parseInt(parts[2]);
+    return ss + mm*60 + hh*3600;
+}
+
+function minToHhMm(val) {
+    return leftPadZero(Math.floor(val/60)) + ':' + leftPadZero(val % 60)
+}
+
+function secondsToElapsed(seconds) {
+    var hh = Math.floor(seconds/3600);
+    var remainder = seconds - hh * 3600;
+    var mm = Math.floor(remainder/60);
+    var ss = remainder % 60;
+    return leftPadZero(hh) + ':' + leftPadZero(mm) + ':' + leftPadZero(ss);
+}
+
+function leftPadZero(val) {
+    var a = '0' + val;
+    return a.substr(a.length-2);
+}
+
+// TIP:  you can easily create a javascript date from the date strings in the
+//  JSON batches object.  For example:
+//    new Date(batches.batches[0].jobSteps[0].start)
+
+// TODO:  we won't use this for spiking.  We want to use the batches variable
+function generateBatches(numBatches) {
+    var batches = [];
+    
+    var predictionWithoutRestart = 110;
+    var predictionWithRestart = predictionWithoutRestart + 20;
+    var maxVarianceWithoutRestart = 20;
+    var maxVarianceForRestart = 10;
+    
+    for(i = 0; i < numBatches; ++i) {
+        timeWithoutRestart = predictionWithoutRestart + Math.floor((Math.random() * maxVarianceWithoutRestart) - maxVarianceWithoutRestart/2);
+        timeWithRestart = timeWithoutRestart + 20 + + Math.floor(Math.random() * maxVarianceForRestart);
+        batches.push({
+                     batchId: (i+1234) + "-C",
+                     predictionWithRestart: predictionWithRestart,
+                     predictionWithoutRestart: predictionWithoutRestart,
+                     timeWithoutRestart: timeWithoutRestart,
+                     timeWithRestart: timeWithRestart
+                     });
+    };
+    return batches;
+}
+
+function loadChart() {
+    
+    var batches = generateBatches(50);
+    
+    var categories = [];
+    var series = [];
+    var timesNotIncludingRestart = [];
+    var timesIncludingRestart = [];
+    var predictedTimeWithRestart = [];
+    
+    for(i=0; i<batches.length; ++i) {
+        timesNotIncludingRestart.push(batches[i].timeWithoutRestart);
+        timesIncludingRestart.push(batches[i].timeWithRestart);
+        predictedTimeWithRestart.push(batches[i].predictionWithRestart);
+        categories.push(batches[i].batchId);
+    };
+    
+    series.push({
+                name: 'Time With Restart',
+                data:  timesIncludingRestart
+                });
+    series.push({
+                name: 'Time Not Including Restart',
+                data:  timesNotIncludingRestart
+                });
+    series.push({
+                name: 'Predicted Time With Restart',
+                data: predictedTimeWithRestart
+                });
+    
+    $('#container').highcharts({
+                               plotOptions: {
+                               series: {
+                               cursor: 'pointer',
+                               point: {
+                               events: {
+                               click: function () {
+                               alert(this.series.name + ' for batch ' + this.category + ', value: ' + this.y);
+                               }
+                               }
+                               }
+                               }
+                               },
+                               title: {
+                               text: 'Workflow Batch Archive History',
+                               x: -20 //center
+                               },
+                               subtitle: {
+                               text: 'Last 50 Batches',
+                               x: -20
+                               },
+                               tooltip: {
+                               formatter: function() {
+                               return this.series.name + ' for batch ' + this.x + ' is ' + minToHhMm(this.y);
+                               }
+                               },
+                               xAxis: {
+                               categories: categories
+                               },
+                               yAxis: {
+                               title: {
+                               text: 'Time (HH:MM)'
+                               },
+                               
+                               labels: {
+                               formatter: function() {
+                               return minToHhMm(this.value);
+                               }
+                               },
+                               
+                               
+                               plotLines: [{
+                                           value: 0,
+                                           width: 1,
+                                           color: '#808080'
+                                           }]
+                               },
+                               legend: {
+                               layout: 'vertical',
+                               align: 'right',
+                               verticalAlign: 'middle',
+                               borderWidth: 0
+                               },
+                               series: series
+                               });
+}
