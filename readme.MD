@@ -12,4 +12,4 @@ Take a look at the demo spike.html page.
   
   - Look at the source spike.js.  Observe the general flow, plus the helper functions that you can use to build a graph.
   
-  - 
+  - Design and code a chart while having fun.
