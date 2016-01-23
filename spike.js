@@ -1,7 +1,11 @@
 $( document ).ready(function() {
-                    loadChart();
-                    });
+    loadDemoChart();  // TODO: remove this chart
+    loadChartForRandori();  // TODO: this currently does nothing
+});
 
+// function to convert elapsed time as a string "HH:MM:SS" to a number in seconds
+// Use this for the "elapsed" field in the jobsteps object:
+//    batches.batches[0].jobSteps[0].elapsed
 function elapsedToSeconds(hhmmss) {
     var parts = hhmmss.split(':');
     var hh = parseInt(parts[0]);
@@ -10,10 +14,8 @@ function elapsedToSeconds(hhmmss) {
     return ss + mm*60 + hh*3600;
 }
 
-function minToHhMm(val) {
-    return leftPadZero(Math.floor(val/60)) + ':' + leftPadZero(val % 60)
-}
-
+// function to convert seconds to an elapsed time string "HH:MM:SS"
+// I don't know if this will be useful
 function secondsToElapsed(seconds) {
     var hh = Math.floor(seconds/3600);
     var remainder = seconds - hh * 3600;
@@ -22,14 +24,19 @@ function secondsToElapsed(seconds) {
     return leftPadZero(hh) + ':' + leftPadZero(mm) + ':' + leftPadZero(ss);
 }
 
+// TIP:  you can easily create a javascript date from the date strings in the
+//  JSON batches object.  For example:
+//    new Date(batches.batches[0].jobSteps[0].start)
+
 function leftPadZero(val) {
     var a = '0' + val;
     return a.substr(a.length-2);
 }
 
-// TIP:  you can easily create a javascript date from the date strings in the
-//  JSON batches object.  For example:
-//    new Date(batches.batches[0].jobSteps[0].start)
+function minToHhMm(val) {
+    return leftPadZero(Math.floor(val/60)) + ':' + leftPadZero(val % 60)
+}
+
 
 // TODO:  we won't use this for spiking.  We want to use the batches variable
 function generateBatches(numBatches) {
@@ -54,7 +61,12 @@ function generateBatches(numBatches) {
     return batches;
 }
 
-function loadChart() {
+function loadChartForRandori() {
+    // TODO:  implement this method
+}
+
+// TODO: we want to replace this chart with our own.
+function loadDemoChart() {
     
     var batches = generateBatches(50);
     
