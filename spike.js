@@ -61,91 +61,73 @@ function generateBatches(numBatches) {
     return batches;
 }
 
-function loadChartForRandori() {
+function jobExecutorsForBatch(batch) {
+    
+    return batches.batches[0].jobSteps.map(function(step) {
+        return step.host;
+    })
+    .sort()
+    .reduce(function(a,b){
+            if (a.slice(-1)[0] !== b) a.push(b);
+            return a;
+            },[]);
+}
+
+function chartExecutor(batch, cssSelector, executorName) {
+    var jobStepsForExecutor = batch.jobSteps.filter(function(step) {
+        return step.host == executorName;
+    });
+    
+    var series = [];
+    for(i=0; i<jobStepsForExecutor.length; ++i) {
+        series.push({
+                    name: jobStepsForExecutor[i].jobId,
+                    data: [elapsedToSeconds(jobStepsForExecutor[i].elapsed)]
+        });
+    }
+    
     $(function () {
-      $('#JobExecutor1').highcharts({
-                                 chart: {
-                                 type: 'bar'
-                                 },
-                                 title: {
-                                 text: ''
-                                 },
-                                 xAxis: {
-                                 categories: ['Apples']
-                                 },
-                                 yAxis: {
-                                 min: 0,
-                                 title: {
-                                 text: ''
-                                 }
-                                 },
-                                 legend: {
-                                 reversed: true
-                                 },
-                                 plotOptions: {
-                                 series: {
-                                 stacking: 'normal'
-                                 }
-                                 },
-                                 series: [
-                                          {
-                                          name: 'Idle',
-                                          data: [2]
-                                          }, {
-                                          name: 'Jim',
-                                          data: [5]
-                                          }, {
-                                          name: 'Siva',
-                                          data: [2]
-                                          }, {
-                                          name: 'Kannan',
-                                          data: [3]
-                                          }]
-                                 }
-                                 
-                                 
-                                 );
+      $(cssSelector).highcharts({
+                                    chart: {
+                                    type: 'bar'
+                                    },
+                                    title: {
+                                    text: ''
+                                    },
+                                    xAxis: {
+                                    categories: [executorName]
+                                    },
+                                    yAxis: {
+                                    min: 0,
+                                    title: {
+                                    text: ''
+                                    }
+                                    },
+                                    legend: {
+                                    reversed: true
+                                    },
+                                    plotOptions: {
+                                    series: {
+                                    stacking: 'normal'
+                                    }
+                                    },
+                                    series: series
+                                    }
+                                    
+                                    
+                                )
+      }
+      );
+    
+}
 
-
-    $('#JobExecutor2').highcharts({
-                                  chart: {
-                                  type: 'bar'
-                                  },
-                                  title: {
-                                  text: ''
-                                  },
-                                  xAxis: {
-                                  categories: ['oranges']
-                                  },
-                                  yAxis: {
-                                  min: 0,
-                                  title: {
-                                  text: ''
-                                  }
-                                  },
-                                  legend: {
-                                  reversed: true
-                                  },
-                                  plotOptions: {
-                                  series: {
-                                  stacking: 'normal'
-                                  }
-                                  },
-                                  series: [{
-                                           name: 'Selva',
-                                           data: [3]
-                                           }, {
-                                           name: 'Misam',
-                                           data: [4]
-                                           }, {
-                                           name: 'Ram',
-                                           data: [5]
-                                           }]
-                                  }
-                                  
-                                  
-                                  );
-});
+function loadChartForRandori() {
+    
+    var batch = batches.batches[0];
+    var jobExecutors = jobExecutorsForBatch(batch);
+    chartExecutor(batch, '#JobExecutor1', jobExecutors[0]);
+    chartExecutor(batch, '#JobExecutor2', jobExecutors[1]);
+    
 }
 
 // TODO: we want to replace this chart with our own.
