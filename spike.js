@@ -39,6 +39,33 @@ function jobExecutorsForBatch(batch) {
             },[]);
 }
 
+function sortAndInsertIdleJobSteps(jobStepsForExecutor) {
+    
+    jobStepsForExecutor.sort(function(stepA, stepB) {
+                             return stepB.startTs - stepA.startTs;
+                             });
+
+    var idleSteps = [];
+    for(i=1; i<jobStepsForExecutor.length; ++i) {
+        var nextJobStart = jobStepsForExecutor[i-1].startTs;
+        var previousJobEnd = jobStepsForExecutor[i].endTs;
+        if(nextJobStart > previousJobEnd) {
+            idleSteps.push({
+                           elapsed: secondsToElapsed((nextJobStart - previousJobEnd)/1000),
+                           startTs: previousJobEnd,
+                           endTs: nextJobStart,
+                           jobId: 'Idle'
+                           });
+        }
+    }
+    
+    return jobStepsForExecutor.concat(idleSteps)
+         .sort(function(stepA, stepB) {
+            return stepB.startTs - stepA.startTs;
+          });
+
+}
+
 function chartExecutor(batch, cssSelector, executorName) {
     var jobStepsForExecutor = batch.jobSteps.filter(function(step) {
         return step.host == executorName;
@@ -46,12 +73,10 @@ function chartExecutor(batch, cssSelector, executorName) {
     
     jobStepsForExecutor.forEach(function(step) {
         step.startTs = new Date(step.start);
+        step.endTs = new Date(step.end);
     });
     
-    jobStepsForExecutor.sort(function(stepA, stepB) {
-        return stepB.startTs - stepA.startTs;
-    });
-    
+    jobStepsForExecutor = sortAndInsertIdleJobSteps(jobStepsForExecutor);
     var series = [];
     for(i=0; i<jobStepsForExecutor.length; ++i) {
         series.push({
@@ -75,7 +100,7 @@ function chartExecutor(batch, cssSelector, executorName) {
                                     labels: {
                                       formatter: function () {
                                        return secondsToElapsed(this.value);
-                                      }     
+                                      }
                                     },
                                     min: 0,
                                     title: {
