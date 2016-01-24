@@ -1,15 +1,6 @@
-HighCharts Randori for Ocean WISE
+HighCharts Randori for Ocean WISE: executorSpike
 -----
-The purpose of this WISE session is to take a look at HighCharts, and to brainstorm and randori on how we can use them for charting Ocean Workflow Job Steps.
+This branch outlines a starting point for graphing job tasks by executor for a particular branch.  To finish the code, all you have to do is everything.
 
-I've created a JSON object that details job steps across several batches.  Let's decide how we want to slice and display this data.
+Start by looking at the batches object and figure out how to data-drive the graph.  Go in baby steps.
 
-Take a look at the HighCharts Demo Page:  http://www.highcharts.com/demo
-
-Take a look at the demo spike.html page.
-  - Note that the demo graph uses generated data.  We want to create a brand new graph using real data.
-  - Open up the JavaScript console and take a look at the batches object.  Think about the data we have and don't have.  What would be useful to show based on the data we have?  What should be easy to put together in an hour or less?
-  
-  - Look at the source spike.js.  Observe the general flow, plus the helper functions that you can use to build a graph.
-  
-  - Design and code a chart while having fun.
