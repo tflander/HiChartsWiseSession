@@ -1,11 +1,7 @@
 $( document ).ready(function() {
-    // loadDemoChart();  // TODO: remove this chart
-    loadChartForRandori();  // TODO: this currently does nothing
+    loadChartForRandori();
 });
 
-// function to convert elapsed time as a string "HH:MM:SS" to a number in seconds
-// Use this for the "elapsed" field in the jobsteps object:
-//    batches.batches[0].jobSteps[0].elapsed
 function elapsedToSeconds(hhmmss) {
     var parts = hhmmss.split(':');
     var hh = parseInt(parts[0]);
@@ -14,8 +10,6 @@ function elapsedToSeconds(hhmmss) {
     return ss + mm*60 + hh*3600;
 }
 
-// function to convert seconds to an elapsed time string "HH:MM:SS"
-// I don't know if this will be useful
 function secondsToElapsed(seconds) {
     var hh = Math.floor(seconds/3600);
     var remainder = seconds - hh * 3600;
@@ -24,10 +18,6 @@ function secondsToElapsed(seconds) {
     return leftPadZero(hh) + ':' + leftPadZero(mm) + ':' + leftPadZero(ss);
 }
 
-// TIP:  you can easily create a javascript date from the date strings in the
-//  JSON batches object.  For example:
-//    new Date(batches.batches[0].jobSteps[0].start)
-
 function leftPadZero(val) {
     var a = '0' + val;
     return a.substr(a.length-2);
@@ -35,30 +25,6 @@ function leftPadZero(val) {
 
 function minToHhMm(val) {
     return leftPadZero(Math.floor(val/60)) + ':' + leftPadZero(val % 60)
-}
-
-
-// TODO:  we won't use this for spiking.  We want to use the batches variable
-function generateBatches(numBatches) {
-    var batches = [];
-    
-    var predictionWithoutRestart = 110;
-    var predictionWithRestart = predictionWithoutRestart + 20;
-    var maxVarianceWithoutRestart = 20;
-    var maxVarianceForRestart = 10;
-    
-    for(i = 0; i < numBatches; ++i) {
-        timeWithoutRestart = predictionWithoutRestart + Math.floor((Math.random() * maxVarianceWithoutRestart) - maxVarianceWithoutRestart/2);
-        timeWithRestart = timeWithoutRestart + 20 + + Math.floor(Math.random() * maxVarianceForRestart);
-        batches.push({
-                     batchId: (i+1234) + "-C",
-                     predictionWithRestart: predictionWithRestart,
-                     predictionWithoutRestart: predictionWithoutRestart,
-                     timeWithoutRestart: timeWithoutRestart,
-                     timeWithRestart: timeWithRestart
-                     });
-    };
-    return batches;
 }
 
 function jobExecutorsForBatch(batch) {
@@ -76,6 +42,14 @@ function jobExecutorsForBatch(batch) {
 function chartExecutor(batch, cssSelector, executorName) {
     var jobStepsForExecutor = batch.jobSteps.filter(function(step) {
         return step.host == executorName;
+    });
+    
+    jobStepsForExecutor.forEach(function(step) {
+        step.startTs = new Date(step.start);
+    });
+    
+    jobStepsForExecutor.sort(function(stepA, stepB) {
+        return stepB.startTs - stepA.startTs;
     });
     
     var series = [];
