@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    loadDemoChart();  // TODO: remove this chart
+    // loadDemoChart();  // TODO: remove this chart
     loadChartForRandori();  // TODO: this currently does nothing
 });
 
@@ -62,7 +62,90 @@ function generateBatches(numBatches) {
 }
 
 function loadChartForRandori() {
-    // TODO:  implement this method
+    $(function () {
+      $('#JobExecutor1').highcharts({
+                                 chart: {
+                                 type: 'bar'
+                                 },
+                                 title: {
+                                 text: ''
+                                 },
+                                 xAxis: {
+                                 categories: ['Apples']
+                                 },
+                                 yAxis: {
+                                 min: 0,
+                                 title: {
+                                 text: ''
+                                 }
+                                 },
+                                 legend: {
+                                 reversed: true
+                                 },
+                                 plotOptions: {
+                                 series: {
+                                 stacking: 'normal'
+                                 }
+                                 },
+                                 series: [
+                                          {
+                                          name: 'Idle',
+                                          data: [2]
+                                          }, {
+                                          name: 'Jim',
+                                          data: [5]
+                                          }, {
+                                          name: 'Siva',
+                                          data: [2]
+                                          }, {
+                                          name: 'Kannan',
+                                          data: [3]
+                                          }]
+                                 }
+                                 
+                                 
+                                 );
+
+
+    $('#JobExecutor2').highcharts({
+                                  chart: {
+                                  type: 'bar'
+                                  },
+                                  title: {
+                                  text: ''
+                                  },
+                                  xAxis: {
+                                  categories: ['oranges']
+                                  },
+                                  yAxis: {
+                                  min: 0,
+                                  title: {
+                                  text: ''
+                                  }
+                                  },
+                                  legend: {
+                                  reversed: true
+                                  },
+                                  plotOptions: {
+                                  series: {
+                                  stacking: 'normal'
+                                  }
+                                  },
+                                  series: [{
+                                           name: 'Selva',
+                                           data: [3]
+                                           }, {
+                                           name: 'Misam',
+                                           data: [4]
+                                           }, {
+                                           name: 'Ram',
+                                           data: [5]
+                                           }]
+                                  }
+                                  
+                                  
+                                  );
+});
 }
 
 // TODO: we want to replace this chart with our own.
