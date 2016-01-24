@@ -72,6 +72,11 @@ function chartExecutor(batch, cssSelector, executorName) {
                                     categories: [executorName]
                                     },
                                     yAxis: {
+                                    labels: {
+                                      formatter: function () {
+                                       return secondsToElapsed(this.value);
+                                      }     
+                                    },
                                     min: 0,
                                     title: {
                                     text: ''
