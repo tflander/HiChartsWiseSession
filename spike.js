@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    loadDemoChart();  // TODO: remove this chart
+    // loadDemoChart();  // TODO: remove this chart
     loadChartForRandori();  // TODO: this currently does nothing
 });
 
@@ -62,7 +62,73 @@ function generateBatches(numBatches) {
 }
 
 function loadChartForRandori() {
-    // TODO:  implement this method
+    var finalMergeP1 = [];
+    batches.batches.forEach(function (batch){
+        batch.jobSteps.forEach(function(step) {
+            if(step.jobId.startsWith("FINAL_MERGE-P1-")) {
+               finalMergeP1.push(step);
+            }
+        });
+    });
+    
+    var categories = [];
+    var series = [];
+    var times = [];
+    
+    finalMergeP1.forEach(function(mergeStep) {
+        categories.push(mergeStep.batchId);
+        times.push(elapsedToSeconds(mergeStep.elapsed));
+    });
+    
+    $('#container').highcharts({
+                               title: {
+                               text: 'P1 Final Merge Time Trend',
+                               x: -20 //center
+                               },
+                               
+                               tooltip: {
+                               formatter: function() {
+                               return this.series.name + 'P1 Final Merge time for batch ' + this.x + ' is ' + secondsToElapsed(this.y);
+                               }
+                               },
+                               
+                               
+                               xAxis: {
+                               categories: categories.reverse()
+                               },
+                               yAxis: {
+                               title: {
+                               text: 'Time (HH:MM:SS)'
+                               },
+                               labels: {
+                               formatter: function() {
+                               return secondsToElapsed(this.value);
+                               }
+
+                               
+                               },
+                               plotLines: [{
+                                           value: 0,
+                                           width: 1,
+                                           color: '#808080'
+                                           }]
+                               },
+                               legend: {
+                               layout: 'vertical',
+                               align: 'right',
+                               verticalAlign: 'middle',
+                               borderWidth: 0
+                               },
+                               series: [{
+                               name: 'Time',
+                               data: times.reverse()
+                               }]
+                               });
+    
+    console.log(categories);
+    console.log(times);
+    
+    
 }
 
 // TODO: we want to replace this chart with our own.
