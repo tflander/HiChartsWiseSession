@@ -23,10 +23,6 @@ function leftPadZero(val) {
     return a.substr(a.length-2);
 }
 
-function minToHhMm(val) {
-    return leftPadZero(Math.floor(val/60)) + ':' + leftPadZero(val % 60)
-}
-
 function jobExecutorsForBatch(batch) {
     
     return batches.batches[0].jobSteps.map(function(step) {
@@ -66,6 +62,25 @@ function sortAndInsertIdleJobSteps(jobStepsForExecutor) {
 
 }
 
+function fixJobId(jobId) {
+    var parts = jobId.split('-');
+    if(parts.length == 1) {
+        return jobId;
+    }
+    var partAfterLastDash = parts[parts.length - 1];
+    if (isNaN(partAfterLastDash)) {
+        return jobId;
+    }
+    jobId = jobId.substr(0, jobId.length - partAfterLastDash.length - 1);
+    if(jobId[jobId.length - 1] == '-') {
+        jobId = jobId.substr(0, jobId.length - 1);
+    }
+    if(isNaN(parts[0])) {
+        return jobId;
+    }
+    return jobId.substr(parts[0].length+1);
+}
+
 function chartExecutor(batch, cssSelector, executorName) {
     var jobStepsForExecutor = batch.jobSteps.filter(function(step) {
         return step.host == executorName;
@@ -74,15 +89,20 @@ function chartExecutor(batch, cssSelector, executorName) {
     jobStepsForExecutor.forEach(function(step) {
         step.startTs = new Date(step.start);
         step.endTs = new Date(step.end);
+        step.jobId = fixJobId(step.jobId);
     });
     
     jobStepsForExecutor = sortAndInsertIdleJobSteps(jobStepsForExecutor);
     var series = [];
     for(i=0; i<jobStepsForExecutor.length; ++i) {
-        series.push({
-                    name: jobStepsForExecutor[i].jobId,
-                    data: [elapsedToSeconds(jobStepsForExecutor[i].elapsed)]
-        });
+        var job = {
+        name: jobStepsForExecutor[i].jobId,
+        data: [elapsedToSeconds(jobStepsForExecutor[i].elapsed)]
+        };
+        if(job.name == 'Idle') {
+            job.color = 'white';
+        }
+        series.push(job);
     }
     
     $(function () {
@@ -110,6 +130,11 @@ function chartExecutor(batch, cssSelector, executorName) {
                                     legend: {
                                     reversed: true
                                     },
+                                tooltip: {
+                                formatter: function() {
+                                return this.series.name + ' took ' + secondsToElapsed(this.y)
+                                }
+                                },
                                     plotOptions: {
                                     series: {
                                     stacking: 'normal'
