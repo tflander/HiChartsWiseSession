@@ -86,11 +86,15 @@ function chartExecutor(batch, cssSelector, executorName) {
         return step.host == executorName;
     });
     
+    var batchId = "";
     jobStepsForExecutor.forEach(function(step) {
         step.startTs = new Date(step.start);
         step.endTs = new Date(step.end);
         step.jobId = fixJobId(step.jobId);
+        batchId = step.batchId;
     });
+    
+    $(".batchId").text(batchId);
     
     jobStepsForExecutor = sortAndInsertIdleJobSteps(jobStepsForExecutor);
     var series = [];
@@ -147,6 +151,7 @@ function chartExecutor(batch, cssSelector, executorName) {
                                 )
       }
       );
+    console.log(cssSelector + ' created');
     
 }
 
@@ -154,95 +159,18 @@ function loadChartForRandori() {
     
     var batch = batches.batches[0];
     var jobExecutors = jobExecutorsForBatch(batch);
-    chartExecutor(batch, '#JobExecutor1', jobExecutors[0]);
-    chartExecutor(batch, '#JobExecutor2', jobExecutors[1]);
     
-}
-
-// TODO: we want to replace this chart with our own.
-function loadDemoChart() {
+    for(i=0; i<jobExecutors.length; ++i) {
+        chartId = "chart" + i;
+        $("body").append('<div id="' + chartId + '" class="chart"></div>');
+        // chartExecutor(batch, '#' + chartId, jobExecutors[i]);
+    }
     
-    var batches = generateBatches(50);
-    
-    var categories = [];
-    var series = [];
-    var timesNotIncludingRestart = [];
-    var timesIncludingRestart = [];
-    var predictedTimeWithRestart = [];
-    
-    for(i=0; i<batches.length; ++i) {
-        timesNotIncludingRestart.push(batches[i].timeWithoutRestart);
-        timesIncludingRestart.push(batches[i].timeWithRestart);
-        predictedTimeWithRestart.push(batches[i].predictionWithRestart);
-        categories.push(batches[i].batchId);
-    };
-    
-    series.push({
-                name: 'Time With Restart',
-                data:  timesIncludingRestart
-                });
-    series.push({
-                name: 'Time Not Including Restart',
-                data:  timesNotIncludingRestart
-                });
-    series.push({
-                name: 'Predicted Time With Restart',
-                data: predictedTimeWithRestart
-                });
-    
-    $('#container').highcharts({
-                               plotOptions: {
-                               series: {
-                               cursor: 'pointer',
-                               point: {
-                               events: {
-                               click: function () {
-                               alert(this.series.name + ' for batch ' + this.category + ', value: ' + this.y);
-                               }
-                               }
-                               }
-                               }
-                               },
-                               title: {
-                               text: 'Workflow Batch Archive History',
-                               x: -20 //center
-                               },
-                               subtitle: {
-                               text: 'Last 50 Batches',
-                               x: -20
-                               },
-                               tooltip: {
-                               formatter: function() {
-                               return this.series.name + ' for batch ' + this.x + ' is ' + minToHhMm(this.y);
-                               }
-                               },
-                               xAxis: {
-                               categories: categories
-                               },
-                               yAxis: {
-                               title: {
-                               text: 'Time (HH:MM)'
-                               },
-                               
-                               labels: {
-                               formatter: function() {
-                               return minToHhMm(this.value);
-                               }
-                               },
-                               
-                               
-                               plotLines: [{
-                                           value: 0,
-                                           width: 1,
-                                           color: '#808080'
-                                           }]
-                               },
-                               legend: {
-                               layout: 'vertical',
-                               align: 'right',
-                               verticalAlign: 'middle',
-                               borderWidth: 0
-                               },
-                               series: series
-                               });
+    for(chartNo=0; chartNo<jobExecutors.length; ++chartNo) {
+        chartId = "chart" + chartNo;
+        chartExecutor(batch, '#' + chartId, jobExecutors[chartNo]);
+        console.log(chartId);
+        console.log(chartNo);
+        
+    }
 }
