@@ -74,11 +74,18 @@ function loadChartForRandori() {
     
     var categories = [];
     var series = [];
-    var times = [];
+    var apTimes = [];
+    var contentTimes = [];
     
     finalMergeP1.forEach(function(mergeStep) {
         categories.push(mergeStep.batchId);
-        times.push(elapsedToSeconds(mergeStep.elapsed));
+        if(mergeStep.batchId.endsWith("A") || mergeStep.batchId.endsWith("P")) {
+            apTimes.push(elapsedToSeconds(mergeStep.elapsed));
+            contentTimes.push(null);
+        } else {
+            contentTimes.push(elapsedToSeconds(mergeStep.elapsed));
+            apTimes.push(null);
+        }
     });
     
     $('#container').highcharts({
@@ -89,7 +96,7 @@ function loadChartForRandori() {
                                
                                tooltip: {
                                formatter: function() {
-                               return this.series.name + 'P1 Final Merge time for batch ' + this.x + ' is ' + secondsToElapsed(this.y);
+                               return 'P1 Final Merge time for batch ' + this.x + ' is ' + secondsToElapsed(this.y);
                                }
                                },
                                
@@ -121,9 +128,14 @@ function loadChartForRandori() {
                                borderWidth: 0
                                },
                                series: [{
-                               name: 'Time',
-                               data: times.reverse()
-                               }]
+                               name: 'Time for Content Batches',
+                               data: contentTimes.reverse()
+                               },
+                                        {
+                                        name: 'Time for AP Batches',
+                                        data: apTimes.reverse()
+                                        }
+                               ]
                                });
     
     console.log(categories);
