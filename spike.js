@@ -65,7 +65,8 @@ function loadChartForRandori() {
     var finalMergeP1 = [];
     batches.batches.forEach(function (batch){
         batch.jobSteps.forEach(function(step) {
-            if(step.jobId.startsWith("FINAL_MERGE-P1-")) {
+
+            if(typeof step.jobId !== 'undefined' && step.jobId.startsWith("FINAL_MERGE-P1-")) {
                finalMergeP1.push(step);
             }
         });
